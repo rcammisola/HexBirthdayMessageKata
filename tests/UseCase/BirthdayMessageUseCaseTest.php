@@ -5,6 +5,7 @@ namespace test\Hex\UseCase;
 use PHPUnit\Framework\TestCase;
 use Hex\Entity\Employee;
 use Hex\SecondaryPort\EmployeeRepositoryPort;
+use Hex\SecondaryPort\MessageCompositionPort;
 use Hex\UseCase\BirthdayMessageUseCase;
 
 class BirthdayMessageUseCaseTest extends TestCase
@@ -23,7 +24,15 @@ class BirthdayMessageUseCaseTest extends TestCase
             ->with($this->equalTo($testDate))
             ->will($this->returnValue($employeeList));
 
-        $useCase = new BirthdayMessageUseCase($repository);
+        $messageComposer = $this->createMock(MessageCompositionPort::class);
+        $messageComposer->expects($this->once())
+            ->method('compose')
+            ->will($this->returnValue("Happy Birthday, John Doe!"));
+
+        $useCase = new BirthdayMessageUseCase(
+            $repository,
+            $messageComposer
+        );
 
         $this->assertTrue($useCase->sendGreetings($testDate));
     }
