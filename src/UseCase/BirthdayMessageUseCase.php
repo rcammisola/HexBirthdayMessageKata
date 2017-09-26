@@ -4,6 +4,7 @@ namespace Hex\UseCase;
 
 use Hex\SecondaryPort\EmployeeRepositoryPort;
 use Hex\SecondaryPort\MessageCompositionPort;
+use Hex\SecondaryPort\MessageTransmissionPort;
 
 class BirthdayMessageUseCase
 {
@@ -11,12 +12,16 @@ class BirthdayMessageUseCase
 
     private $message;
 
+    private $transmitter;
+
     public function __construct(
         EmployeeRepositoryPort $employeeRepository,
-        MessageCompositionPort $messageComposer
+        MessageCompositionPort $messageComposer,
+        MessageTransmissionPort $messageTransmission
     ) {
         $this->employeeRepository = $employeeRepository;
         $this->message = $messageComposer;
+        $this->transmitter = $messageTransmission;
     }
 
     public function sendGreetings($date)
@@ -25,6 +30,8 @@ class BirthdayMessageUseCase
 
         foreach ($employees as $employee) {
             $message = $this->message->compose($employee);
+
+            $this->transmitter->send($message);
         }
 
         return true;
